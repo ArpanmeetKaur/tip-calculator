@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Tip Calculator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="input-section">
+            <div class="form-control">
+                <label for="bill">Bill: </label>
+                <input type="text" id="bill" class="input-field" placeholder="0" min="0">
+            </div>
+            <div class="form-control">
+                <p>Select Tip % : </p>
+                <div class="tip-button-container">
+                    <button type="button" class="tip-percent-btn" data-tip="5">5%</button>
+                    <button type="button" class="tip-percent-btn" data-tip="10">10%</button>
+                    <button type="button" class="tip-percent-btn" data-tip="15">15%</button>
+                    <button type="button" class="tip-percent-btn" data-tip="25">25%</button>
+                    <button type="button" class="tip-percent-btn" data-tip="50">50%</button>
+
+                    <input type="text" id="custom-tip" class="input-field tip-custom-input" placeholder="Custom" min="0"><br><br>
+                </div>
+            </div>
+            <div class="form-control">
+                <label for="num-people">No. of People: </label>
+                <input type="number" id="num-people" class="input-field" placeholder="0" min="0">
+            </div>
+        </div>
+
+        <div class="output-section">
+            <div class="result-line">
+                <div class="result-label">
+                    <p>Tip amount: </p>
+                    <span>/person</span>
+                </div>
+                <div class="result-value">
+                    <span id="Tip-amount-display">₹0</span>
+                </div>
+            </div>
+
+            <div class="result-line">
+                <div class="result-label">
+                    <p>Total Amount: </p>
+                    <span>/person</span>
+                </div>
+                <div class="result-value">
+                    <span id="Total-amount-display">₹0</span>
+                </div>
+            </div>
+
+            <button type="button" id="reset-button" class="reset-btn">RESET</button>
+        </div>
+    </div>
+    <script src="./script.js" defer></script>
+</body>
+</html>
