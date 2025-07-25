@@ -1,154 +1,115 @@
+//DOM Element Selections
 const billInput = document.getElementById("bill");
 const tipButtons = document.querySelectorAll(".tip-percent-btn");
 const customTipInput = document.getElementById("custom-tip");
 const peopleInput = document.getElementById("num-people");
-const tipAmountDisplay = document.getElementById("Tip-amount-display");
-const totalAmountDisplay = document.getElementById("Total-amount-display");
+const tipAmountDisplay = document.getElementById("tip-amount-display");
+const totalAmountDisplay = document.getElementById("total-amount-display");
 const resetButton = document.getElementById("reset-button");
 
-// console.log('Bill Input:', billInput);
-// console.log('Tip Buttons NodeList:', tipButtons);
-// console.log('Custom Tip Input:', customTipInput);
-// console.log('People Input:', peopleInput);
-// console.log('Tip Amount Display Element:', tipAmountDisplay);
-// console.log('Total Amount Display Element:', totalAmountDisplay);
-// console.log('Reset Button:', resetButton);
-
-// billInput.addEventListener('input' , function(event){
-//     const currentBillValue = billInput.value;
-//     console.log("bill Input changes, current value: " , currentBillValue);
-// });
-
-// tipButtons.forEach(function(Button){
-//     Button.addEventListener('click' , function(event){
-//         const clickedButton = event.target;
-//         const tipPercentage = clickedButton.dataset.tip;
-//         console.log('Tip Button Clicked: ' , clickedButton.textContent);
-//         if(tipPercentage){
-//             console.log("Selected Tip Percentage(from data-tip)" , tipPercentage + "%");
-//         }
-//         else{
-//             console.warn("Clicked Button is missing the data-tip attribute!");
-//         }
-//     });
-// });
-
-// customTipInput.addEventListener('input' , function(event){
-//     const customTipValue = event.target.value;
-//     console.log("Custom Tip Input changed , current value: " , customTipValue);
-// });
-
-// peopleInput.addEventListener('input' , function(event){
-//     const numberOfPeopleValue = event.target.value;
-//     console.log('Number of People Input changed , current value: ' , numberOfPeopleValue);
-// });
-
-
-billInput.addEventListener('input',calculateTip); 
-
-tipButtons.forEach(button => {
-    button.addEventListener('click', (event) => {
-        const clickedButton = event.target;
-        const tipPercentage = clickedButton.dataset.tip;
-        tipButtons.forEach(btn => btn.classList.remove('active'));
-        clickedButton.classList.add('active');
-        customTipInput.value = '';
-        if (!tipPercentage) {
-            console.warn('Clicked button is missing the data-tip attribute!');
+// Add input listeners
+[billInput, customTipInput, peopleInput].forEach(input => {
+    input.addEventListener('input', calculateTip);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            calculateTip();
         }
+    });
+});
+
+// Tip buttons: click and Enter support
+tipButtons.forEach(button => {
+    button.addEventListener('click', event => {
+        tipButtons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        customTipInput.value = '';
         calculateTip();
     });
+
+    button.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click(); // Same as mouse click
+        }
+    });
 });
 
-customTipInput.addEventListener('input' , () => {
-    tipButtons.forEach(btn => btn.classList.remove('active'));
-    calculateTip();
-});
+if (resetButton) {
+    resetButton.addEventListener('click', resetCalculator);
+} else {
+    console.error('Reset button not found!');
+}
 
-peopleInput.addEventListener('input' , calculateTip);
-
-function calculateTip(){
+function calculateTip() {
     console.log('--- calculateTip() function executed ---');
 
-    const billValueStr = billInput.value;
-    const peopleValueStr = peopleInput.value;
-    const customTipvalueStr = customTipInput.value;
-
-    let selectedButtonTipStr = null;
+    // Parse input values
+    const billAmount = parseFloat(billInput.value);
+    const numberOfPeople = parseFloat(peopleInput.value);
+    const customTipPercent = parseFloat(customTipInput.value.trim());
+    const customTipEntered = customTipInput.value.trim() !== '';
     const activeButton = document.querySelector('.tip-percent-btn.active');
+    const selectedButtonTipPercent = activeButton ? parseFloat(activeButton.dataset.tip) : null;
 
-    if(activeButton){
-        selectedButtonTipStr = activeButton.dataset.tip;               //return a string not a number
-    }
-
-    console.log("Raw Input - Bill:" , billValueStr , `(Type: ${typeof billValueStr})`);
-    console.log("Raw Input - People:" , peopleValueStr , `(Type: ${typeof peopleValueStr})`);
-    console.log("Raw Input - Custom Tip:" , customTipvalueStr , `(Type: ${typeof customTipvalueStr})`);
-    console.log("Raw Input - Seleced Button Tip:" , selectedButtonTipStr , `(Type: ${typeof selectedButtonTipStr})`);
-    //$ is used for template literals
-
-    const billAmount = parseFloat(billValueStr);
-    const numberOfPeople = parseFloat(peopleValueStr);
-    const customTipPercent = parseFloat(customTipvalueStr);
-
-    const selectedButtonTipPercent = selectedButtonTipStr ? parseFloat(selectedButtonTipStr) : null ;
-    //convert only if the button is active
-
-    console.log("Converted Number - Bill Amount: " , billAmount , `(Type: ${typeof billAmount})`);
-    console.log("Converted Number - Number Of People: " , numberOfPeople , `(Type: ${typeof numberOfPeople})`);
-    console.log("Converted Number - Custom Tip%: " , customTipPercent , `(Type: ${typeof customTipPercent})`);
-    console.log("Converted Number - Selected Button Tip%: " , selectedButtonTipPercent , `(Type: ${typeof selectedButtonTipPercent})`);
-
+    // Tip selection logic
     let actualTipPercent = 0;
-    if(!isNaN(customTipPercent) && customTipPercent>=0 ){
-        actualTipPercent = customTipPercent;
-        console.log("Using Custom Tip Percentage: " , actualTipPercent);
-    }
-    else if(selectedButtonTipPercent != null && !isNaN(selectedButtonTipPercent) && selectedButtonTipPercent >= 0){
+    let isTipValid = true;
+
+    if (customTipEntered) {
+        if (!isNaN(customTipPercent) && customTipPercent >= 0) {
+            actualTipPercent = customTipPercent;
+        } else {
+            isTipValid = false;
+        }
+    } else if (!isNaN(selectedButtonTipPercent) && selectedButtonTipPercent >= 0) {
         actualTipPercent = selectedButtonTipPercent;
-        console.log("Using Selected Button Tip Percentage: " , actualTipPercent);
-    }
-    else{
-        console.log("Using Default Tip Percentage: 0");
+    } else {
+        isTipValid = false;
     }
 
-    let totalTipAmount = 0;
-    if(!isNaN(billAmount) && billAmount>=0){
-        totalTipAmount = billAmount * (actualTipPercent/100);
-    }
-    console.log("Calculated Total Tip Amount: ", totalTipAmount , `(Type: ${typeof totalTipAmount})`);
+    // Validate all inputs
+    const isBillValid = !isNaN(billAmount) && billAmount >= 0;
+    const isPeopleValid = !isNaN(numberOfPeople) && numberOfPeople > 0 && Number.isInteger(numberOfPeople);
 
-    const totalBillAmount = billAmount + totalTipAmount ;
-    console.log(`Total Bill Calculation : ${billAmount} + ${totalTipAmount} = ${totalTipAmount}`);
-    if(isNaN(totalBillAmount)){
-        console.log("Invalid input: Please enter the valid bill amount.");
-    } else{
-        console.log(`Final Total Bill: ₹${totalBillAmount.toFixed(2)}`);
+    // Apply red border to invalid inputs
+    billInput.classList.toggle('error', !isBillValid);
+    peopleInput.classList.toggle('error', !isPeopleValid);
+    customTipInput.classList.toggle('error', !isTipValid);
+
+    // Stop if any input is invalid
+    if (!isBillValid || !isPeopleValid || !isTipValid) {
+        tipAmountDisplay.textContent = '₹0.00';
+        totalAmountDisplay.textContent = '₹0.00';
+        console.warn("Invalid input. Calculation skipped.");
+        return;
     }
 
-    let tipAmountPerPerson = 0;
-    if(!isNaN(totalTipAmount) && !isNaN(numberOfPeople) && numberOfPeople>0){
-        tipAmountPerPerson = totalTipAmount / numberOfPeople;
-    } else{
-        console.warn("Cannot calculate tip per person. Invalid inputs (Tip:", totalTipAmount, ", People:", numberOfPeople, ")")
-    }
-    console.log("Calculated- Tip Amount Per Person:" , tipAmountPerPerson, `(Type: ${typeof tipAmountPerPerson})`);
+    // Perform calculations
+    const totalTipAmount = billAmount * (actualTipPercent / 100);
+    const totalBillAmount = billAmount + totalTipAmount;
+    const tipPerPerson = totalTipAmount / numberOfPeople;
+    const totalPerPerson = totalBillAmount / numberOfPeople;
 
-    let totalAmountPerPerson = 0;
-    if(!isNaN(totalBillAmount) && !isNaN(numberOfPeople) && numberOfPeople>0){
-        totalAmountPerPerson = totalBillAmount / numberOfPeople;
-    } else{
-        console.warn("Cannot calculate total per person. Invalid inputs (Total Bill:", totalBillAmount, ", People:", numberOfPeople, ")")
-    }
-    console.log("Calculated- Total Amount Per Person:" , totalAmountPerPerson, `(Type: ${typeof totalAmountPerPerson})`);
+    // Display outputs
+    tipAmountDisplay.textContent = `₹${tipPerPerson.toFixed(2)}`;
+    totalAmountDisplay.textContent = `₹${totalPerPerson.toFixed(2)}`;
 
-     console.log({ 
-        billAmount,
-        numberOfPeople,
-        actualTipPercent,
-        totalTipAmount,
-        totalBillAmount,
-        tipAmountPerPerson,
-        totalAmountPerPerson
-    });
-};
+    console.log(`Tip Per Person: ₹${tipPerPerson.toFixed(2)}, Total Per Person: ₹${totalPerPerson.toFixed(2)}`);
+}
+
+function resetCalculator() {
+    billInput.value = '';
+    customTipInput.value = '';
+    peopleInput.value = '';
+    tipButtons.forEach(btn => btn.classList.remove('active'));
+    tipAmountDisplay.textContent = '₹0.00';
+    totalAmountDisplay.textContent = '₹0.00';
+    billInput.classList.remove('error');
+    customTipInput.classList.remove('error');
+    peopleInput.classList.remove('error');
+    console.log('Calculator reset.');
+}
+
+// Initial run
+document.addEventListener('DOMContentLoaded', calculateTip);
