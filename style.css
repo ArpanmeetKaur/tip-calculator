@@ -13,7 +13,7 @@ html, body {
   background-color: #FFFFFF;
   padding: 30px;
   border-radius: 15px;
-  max-height: 100vh;
+/*   max-height: 100vh; */
   max-width: 900px;
   width: 90%;
   margin: 40px auto;
